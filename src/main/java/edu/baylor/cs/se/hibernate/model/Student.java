@@ -1,10 +1,18 @@
 package edu.baylor.cs.se.hibernate.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+//annotation bellow is just for Jackson serialization in controller
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class Student implements Serializable{
 
     @Id
@@ -18,18 +26,11 @@ public class Student implements Serializable{
         return id;
     }
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "STUDENT_COURSE",
-            joinColumns = { @JoinColumn(name = "STUDENT_ID") },
-            inverseJoinColumns = { @JoinColumn(name = "COURSE_ID") })
-    private List<Course> courses;
+    @ManyToMany(mappedBy = "students", cascade = CascadeType.ALL)
+    private List<Course> courses = new ArrayList();
 
     public List<Course> getCourses() {
         return courses;
-    }
-
-    public void setCourses(List<Course> courses) {
-        this.courses = courses;
     }
 
     public String getName(){

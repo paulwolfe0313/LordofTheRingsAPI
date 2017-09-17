@@ -1,6 +1,7 @@
 package edu.baylor.cs.se.hibernate.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
@@ -9,10 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-//annotation bellow is just for Jackson serialization in controller
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
 public class Student implements Serializable{
 
     @Id
@@ -27,6 +24,11 @@ public class Student implements Serializable{
     }
 
     @ManyToMany(mappedBy = "students"/*, cascade = CascadeType.ALL, fetch = FetchType.LAZY*/)
+    //annotation bellow is just for Jackson serialization in controller
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id")
+    @JsonIdentityReference(alwaysAsId=true)
     private Set<Course> courses = new HashSet();
 
     public Set<Course> getCourses() {

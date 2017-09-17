@@ -23,6 +23,7 @@ public class SuperRepository {
         Student student2 = createStudent("John");
         Student student3 = createStudent("Bob");
         Student student4 = createStudent("Tim");
+        Student student5 = createStudent("Jimmy");
 
 
         Teacher teacher = new Teacher();
@@ -43,8 +44,8 @@ public class SuperRepository {
         course2.setName("Boring class");
         course2.setTeacher(teacher);
         course2.getStudents().add(student);
-        course2.getStudents().add(student4);
-        em.persist(course);
+        course2.getStudents().add(student5);
+        em.persist(course2);
 
         //Do you know why this is not working?
         student2.getCourses().add(course);
@@ -62,7 +63,7 @@ public class SuperRepository {
      * List of courses with more than 2 students (3 and more)
      */
     public List<Course> getCoursesByStudentName(){
-        return em.createNamedQuery("Course.findCoursesByStudentName").setParameter("name","Bob").getResultList();
+        return em.createNamedQuery("Course.findCoursesByStudentName").setParameter("name","Jimmy").getResultList();
     }
 
     private Student createStudent(String name){

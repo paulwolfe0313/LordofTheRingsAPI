@@ -1,20 +1,17 @@
 package edu.baylor.cs.se.hibernate.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-//annotation bellow is just for Jackson serialization in controller
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
 public class Teacher {
     @Id
     @GeneratedValue
@@ -37,7 +34,12 @@ public class Teacher {
     private String email;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "teacher")
-    private List<Course> courses = new ArrayList();
+    //annotation bellow is just for Jackson serialization in controller
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id")
+    @JsonIdentityReference(alwaysAsId=true)
+    private Set<Course> courses = new HashSet();
 
     public Long getId() {
         return id;
@@ -67,7 +69,7 @@ public class Teacher {
         this.email = email;
     }
 
-    public List<Course> getCourses() {
+    public Set getCourses() {
         return courses;
     }
 

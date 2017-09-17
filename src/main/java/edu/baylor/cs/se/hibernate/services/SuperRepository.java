@@ -8,32 +8,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.LinkedList;
 import java.util.List;
 
 //Spring annotation, feel free to ignore it
 @Repository
-@Transactional(readOnly = true)
+@Transactional
 public class SuperRepository {
 
     @PersistenceContext
-    EntityManager em;
-
-    public Student addStudent(String name){
-        Student student = new Student();
-        student.setName(name);
-        em.persist(student);
-        return student;
-    }
+    private EntityManager em;
 
     public void populate(){
-        Student student = new Student();
-        student.setName("Joe");
-        em.persist(student);
+        Student student = createStudent("Joe");
+        Student student2 = createStudent("John");
+        Student student3 = createStudent("Bob");
+        Student student4 = createStudent("Tim");
 
-        Student student2 = new Student();
-        student2.setName("John");
-        em.persist(student2);
 
         Teacher teacher = new Teacher();
         teacher.setFirstName("Bob");
@@ -42,22 +32,43 @@ public class SuperRepository {
         em.persist(teacher);
 
         Course course = new Course();
-        List<Student> students = new LinkedList();
-        students.add(student);
-        students.add(student2);
-        course.setStudents(students);
         course.setName("Software engineering");
         course.setTeacher(teacher);
-        //course.getStudents().add(student);
-        //course.getStudents().add(student2);
+        course.getStudents().add(student);
+        course.getStudents().add(student3);
+        course.getStudents().add(student4);
         em.persist(course);
+
+        Course course2 = new Course();
+        course2.setName("Boring class");
+        course2.setTeacher(teacher);
+        course2.getStudents().add(student);
+        course2.getStudents().add(student4);
+        em.persist(course);
+
+        //Do you know why this is not working?
+        student2.getCourses().add(course);
+
     }
 
-    public Teacher getTeacher(){
-        return (Teacher)em.createQuery("SELECT t FROM Teacher t").getResultList().get(0);
+    /**
+     * List of courses with more than 2 students (3 and more)
+     */
+    public List<Course> getCoursesBySize(){
+        return em.createQuery("SELECT c FROM Course c WHERE c.students.size > 2 ").getResultList();
     }
 
-    public Course getCourse(){
-        return (Course)em.createQuery("SELECT c FROM Course c").getResultList().get(0);
+    /**
+     * List of courses with more than 2 students (3 and more)
+     */
+    public List<Course> getCoursesByStudentName(){
+        return em.createNamedQuery("Course.findCoursesByStudentName").setParameter("name","Bob").getResultList();
+    }
+
+    private Student createStudent(String name){
+        Student student = new Student();
+        student.setName(name);
+        em.persist(student);
+        return student;
     }
 }

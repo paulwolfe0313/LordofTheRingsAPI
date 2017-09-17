@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 //annotation bellow is just for Jackson serialization in controller
@@ -26,11 +26,15 @@ public class Student implements Serializable{
         return id;
     }
 
-    @ManyToMany(mappedBy = "students", cascade = CascadeType.ALL)
-    private List<Course> courses = new ArrayList();
+    @ManyToMany(mappedBy = "students"/*, cascade = CascadeType.ALL, fetch = FetchType.LAZY*/)
+    private Set<Course> courses = new HashSet();
 
-    public List<Course> getCourses() {
+    public Set<Course> getCourses() {
         return courses;
+    }
+
+    public void setCourses(Set<Course> courses) {
+        this.courses = courses;
     }
 
     public String getName(){

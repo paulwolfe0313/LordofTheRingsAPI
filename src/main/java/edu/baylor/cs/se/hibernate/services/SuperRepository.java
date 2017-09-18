@@ -10,7 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 
-//Spring annotation, feel free to ignore it
+//Spring annotations, feel free to ignore it
 @Repository
 @Transactional
 public class SuperRepository {

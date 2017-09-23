@@ -1,6 +1,6 @@
 package edu.baylor.cs.se.hibernate.controller;
 
-import edu.baylor.cs.se.hibernate.model.Teacher;
+import edu.baylor.cs.se.hibernate.model.Course;
 import edu.baylor.cs.se.hibernate.services.SuperRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,12 +30,12 @@ public class MyController {
     }
 
     @RequestMapping(value = "/courses", method = RequestMethod.GET)
-    public ResponseEntity<Teacher> getCoursesBySize(){
+    public ResponseEntity<Course> getCoursesBySize(){
         return new ResponseEntity(superRepository.getCoursesBySize(),HttpStatus.OK);
     }
 
     @RequestMapping(value = "/courses2", method = RequestMethod.GET)
-    public ResponseEntity<Teacher> getCoursesByStudentName(){
+    public ResponseEntity<Course> getCoursesByStudentName(){
         return new ResponseEntity(superRepository.getCoursesByStudentName(),HttpStatus.OK);
     }
 }

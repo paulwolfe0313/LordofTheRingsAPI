@@ -1,6 +1,8 @@
 package edu.baylor.cs.se.hibernate;
 
-import edu.baylor.cs.se.hibernate.model.Teacher;
+import edu.baylor.cs.se.hibernate.model.Hero;
+import edu.baylor.cs.se.hibernate.model.Hero.Allegiance;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,10 +10,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.validation.ConstraintViolationException;
+import javax.persistence.PersistenceException;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import static org.junit.Assert.fail;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -20,25 +24,62 @@ public class ExampleTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    @Test
-    //simple test
-    public void demoTest(){
-        Teacher teacher = new Teacher();
-        teacher.setEmail("email@email.com");
-        teacher.setFirstName("John");
-        teacher.setLastName("Roe");
-        entityManager.persist(teacher);
-        Teacher dbTeacher = (Teacher)entityManager.getEntityManager().createQuery("SELECT t FROM Teacher t WHERE t.firstName LIKE 'John' ").getResultList().get(0);
-        assertThat(teacher.getFirstName()).isEqualToIgnoringCase(dbTeacher.getFirstName());
+    @Before
+    public void setUp() {
+        // Setup data for testing if necessary
     }
 
     @Test
-    //tests that email validation works
-    public void anotherDemoTest(){
-        Teacher teacher = new Teacher();
-        teacher.setEmail("hahaWrongEmail");
-        teacher.setFirstName("John");
-        teacher.setLastName("Roe");
-        assertThatThrownBy(() -> { entityManager.persist(teacher); }).isInstanceOf(ConstraintViolationException.class).hasMessageContaining("must contain valid email address");
+    public void testHeroCreationWithUniqueName() {
+        Hero hero = new Hero("Bilbo", "Hobbit", 50f, Allegiance.GOOD);
+        entityManager.persistAndFlush(hero);
+        Hero found = entityManager.find(Hero.class, hero.getId());
+        assertThat(found.getName()).isEqualTo(hero.getName());
     }
+
+   @Test
+public void testHeroCreationFailsWithDuplicateName() {
+    Hero hero1 = new Hero("Bilbo", "Hobbit", 50f, Allegiance.GOOD);
+    entityManager.persistAndFlush(hero1);
+    try {
+        Hero hero2 = new Hero("Bilbo", "Elf", 60f, Allegiance.DARK);
+        entityManager.persistAndFlush(hero2);
+        fail("PersistenceException expected due to duplicate hero name");
+    } catch (PersistenceException expectedException) {
+        
+    }
+}
+
+@Test
+public void testListingHeroesOrderedByName() {
+    // Assuming heroes are already populated in @Before setup or elsewhere
+    List<Hero> heroes = entityManager.getEntityManager()
+        .createQuery("SELECT h FROM Hero h ORDER BY h.name", Hero.class)
+        .getResultList();
+    assertThat(heroes).isNotEmpty();
+}
+
+@Test
+public void testSearchHeroesByName() {
+    // Setup - creating and persisting heroes
+    Hero hero1 = new Hero("Aragorn", "Human", 95f, Allegiance.GOOD);
+    Hero hero2 = new Hero("Legolas", "Elf", 90f, Allegiance.GOOD);
+    Hero hero3 = new Hero("Gimli", "Dwarf", 85f, Allegiance.GOOD);
+    entityManager.persistAndFlush(hero1);
+    entityManager.persistAndFlush(hero2);
+    entityManager.persistAndFlush(hero3);
+
+    // Act - searching for a hero by name
+    List<Hero> searchResults = entityManager.getEntityManager()
+        .createQuery("SELECT h FROM Hero h WHERE h.name LIKE :name", Hero.class)
+        .setParameter("name", "%gol%")
+        .getResultList();
+
+    // Assert - verify that the correct hero is returned
+    assertThat(searchResults).hasSize(1);
+    assertThat(searchResults.get(0).getName()).isEqualTo("Legolas");
+}
+
+    
+
 }

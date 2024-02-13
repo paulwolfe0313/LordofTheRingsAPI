@@ -1,41 +1,70 @@
 package edu.baylor.cs.se.hibernate.controller;
 
-import edu.baylor.cs.se.hibernate.model.Course;
-import edu.baylor.cs.se.hibernate.services.SuperRepository;
+import edu.baylor.cs.se.hibernate.model.Hero;
+import edu.baylor.cs.se.hibernate.services.HeroService; 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-//Ignore this as it is Spring and not Java EE (Jax-RS) controller
 @RestController
+@RequestMapping("/heroes")
 public class MyController {
 
-    private SuperRepository superRepository;
+    private final HeroService heroService;
 
-    //you should generally favour constructor/setter injection over field injection
     @Autowired
-    public MyController(SuperRepository superRepository){
-        this.superRepository = superRepository;
+    public MyController(HeroService heroService) {
+        this.heroService = heroService;
     }
 
-    //very bad practise - using GET method to insert something to DB
-    @RequestMapping(value = "/populate", method = RequestMethod.GET)
-    public ResponseEntity populate(){
-        superRepository.populate();
-        return new ResponseEntity(HttpStatus.OK);
+    @PostMapping("/populate")
+    public ResponseEntity<String> populateHeroes() {
+        List<Hero> sampleHeroes = Arrays.asList(
+        new Hero("Frodo", "Hobbit", 10f, Hero.Allegiance.GOOD),
+        new Hero("Aragorn", "Human", 95f, Hero.Allegiance.GOOD),
+        new Hero("Legolas", "Elf", 90f, Hero.Allegiance.GOOD),
+        new Hero("Gimli", "Dwarf", 85f, Hero.Allegiance.GOOD),
+        new Hero("Saruman", "Wizard", 100f, Hero.Allegiance.DARK),
+        new Hero("Sauron", "Maia", 100f, Hero.Allegiance.DARK),
+        new Hero("Witch-king of Angmar", "Human", 95f, Hero.Allegiance.DARK),
+        new Hero("Gollum", "Hobbit", 30f, Hero.Allegiance.DARK),
+        new Hero("Grima Wormtongue", "Human", 40f, Hero.Allegiance.DARK)
+
+    );
+
+    sampleHeroes.forEach(hero -> heroService.createHero(hero));
+
+    return ResponseEntity.ok("Database populated with heroes");
     }
 
-    @RequestMapping(value = "/courses", method = RequestMethod.GET)
-    public ResponseEntity<Course> getCoursesBySize(){
-        return new ResponseEntity(superRepository.getCoursesBySize(),HttpStatus.OK);
+   @PostMapping
+public ResponseEntity<List<Hero>> createHeroes(@RequestBody List<Hero> heroes) {
+    List<Hero> savedHeroes = heroes.stream()
+                                   .map(heroService::createHero)
+                                   .collect(Collectors.toList());
+    return ResponseEntity.ok(savedHeroes);
+}
+    @GetMapping
+    public List<Hero> getAllHeroes() {
+        return heroService.getAllHeroesOrderedByName();
     }
 
-    @RequestMapping(value = "/courses2", method = RequestMethod.GET)
-    public ResponseEntity<Course> getCoursesByStudentName(){
-        return new ResponseEntity(superRepository.getCoursesByStudentName(),HttpStatus.OK);
+    @GetMapping("/{id}")
+public Hero getHeroById(@PathVariable Long id) {
+    return heroService.getHeroById(id);
+}
+
+    @GetMapping(params = "name")
+    public List<Hero> searchHeroesByName(@RequestParam String name) {
+        return heroService.searchHeroesByName(name);
+    }
+
+    @PostMapping("/fight")
+    public Hero fight(@RequestParam Long id1, @RequestParam Long id2) {
+        return heroService.fight(id1, id2);
     }
 }

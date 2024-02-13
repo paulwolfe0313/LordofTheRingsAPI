@@ -49,12 +49,8 @@ public class HeroService {
 
         Hero hero1 = optionalHero1.get();
         Hero hero2 = optionalHero2.get();
-
-        // Logic to simulate the fight and determine the winner
-        // Assuming we have a method called `simulateFight(Hero hero1, Hero hero2)` that returns the winner
         Hero winner = simulateFight(hero1, hero2);
 
-        // Remove the defeated hero from the database
         if (winner != null) {
             Hero defeated = (winner.equals(hero1)) ? hero2 : hero1;
             heroRepository.delete(defeated);

@@ -26,7 +26,6 @@ public class ExampleTest {
 
     @Before
     public void setUp() {
-        // Setup data for testing if necessary
     }
 
     @Test
@@ -52,7 +51,6 @@ public void testHeroCreationFailsWithDuplicateName() {
 
 @Test
 public void testListingHeroesOrderedByName() {
-    // Assuming heroes are already populated in @Before setup or elsewhere
     List<Hero> heroes = entityManager.getEntityManager()
         .createQuery("SELECT h FROM Hero h ORDER BY h.name", Hero.class)
         .getResultList();
@@ -61,7 +59,6 @@ public void testListingHeroesOrderedByName() {
 
 @Test
 public void testSearchHeroesByName() {
-    // Setup - creating and persisting heroes
     Hero hero1 = new Hero("Aragorn", "Human", 95f, Allegiance.GOOD);
     Hero hero2 = new Hero("Legolas", "Elf", 90f, Allegiance.GOOD);
     Hero hero3 = new Hero("Gimli", "Dwarf", 85f, Allegiance.GOOD);
@@ -69,13 +66,11 @@ public void testSearchHeroesByName() {
     entityManager.persistAndFlush(hero2);
     entityManager.persistAndFlush(hero3);
 
-    // Act - searching for a hero by name
     List<Hero> searchResults = entityManager.getEntityManager()
         .createQuery("SELECT h FROM Hero h WHERE h.name LIKE :name", Hero.class)
         .setParameter("name", "%gol%")
         .getResultList();
 
-    // Assert - verify that the correct hero is returned
     assertThat(searchResults).hasSize(1);
     assertThat(searchResults.get(0).getName()).isEqualTo("Legolas");
 }
